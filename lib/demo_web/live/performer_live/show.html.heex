@@ -1,0 +1,26 @@
+<.header>
+  Performer <%= @performer.id %>
+  <:subtitle>This is a performer record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/performers/#{@performer}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit performer</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Name"><%= @performer.name %></:item>
+</.list>
+
+<.back navigate={~p"/performers"}>Back to performers</.back>
+
+<.modal :if={@live_action == :edit} id="performer-modal" show on_cancel={JS.patch(~p"/performers/#{@performer}")}>
+  <.live_component
+    module={DemoWeb.PerformerLive.FormComponent}
+    id={@performer.id}
+    title={@page_title}
+    action={@live_action}
+    performer={@performer}
+    patch={~p"/performers/#{@performer}"}
+  />
+</.modal>

@@ -1,0 +1,41 @@
+<.header>
+  Listing Tracks
+  <:actions>
+    <.link patch={~p"/tracks/new"}>
+      <.button>New Track</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="tracks"
+  rows={@streams.tracks}
+  row_click={fn {_id, track} -> JS.navigate(~p"/tracks/#{track}") end}
+>
+  <:col :let={{_id, track}} label="Name"><%= track.name %></:col>
+  <:action :let={{_id, track}}>
+    <div class="sr-only">
+      <.link navigate={~p"/tracks/#{track}"}>Show</.link>
+    </div>
+    <.link patch={~p"/tracks/#{track}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, track}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: track.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="track-modal" show on_cancel={JS.patch(~p"/tracks")}>
+  <.live_component
+    module={DemoWeb.TrackLive.FormComponent}
+    id={@track.id || :new}
+    title={@page_title}
+    action={@live_action}
+    track={@track}
+    patch={~p"/tracks"}
+  />
+</.modal>
