@@ -5,7 +5,7 @@ defmodule Demo.Catalog.Performer do
   schema "performers" do
     field :name, :string
 
-    belongs_to :track, Demo.Catalog.Track
+    many_to_many :track, Demo.Catalog.Track, join_through: "track_performers"
 
     timestamps(type: :utc_datetime)
   end

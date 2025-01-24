@@ -1,4 +1,12 @@
-<.header>
+<.live_component
+  module={DemoWeb.TrackLive.FormComponent}
+  id={@track.id}
+  title={@page_title}
+  action={@live_action}
+  track={@track}
+  patch={~p"/tracks/#{@track}"}
+/>
+<%!-- <.header>
   Track <%= @track.id %>
   <:subtitle>This is a track record from your database.</:subtitle>
   <:actions>
@@ -23,4 +31,4 @@
     track={@track}
     patch={~p"/tracks/#{@track}"}
   />
-</.modal>
+</.modal> --%>

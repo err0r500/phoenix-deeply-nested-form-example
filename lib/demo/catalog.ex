@@ -131,7 +131,7 @@ defmodule Demo.Catalog do
       ** (Ecto.NoResultsError)
 
   """
-  def get_track!(id), do: Repo.get!(Track, id)
+  def get_track!(id), do: Repo.get!(Track, id) |> Repo.preload(track_performers: [:performer])
 
   @doc """
   Creates a track.

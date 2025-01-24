@@ -11,5 +11,15 @@ defmodule Demo.Repo.Migrations.CreatePerformers do
     end
 
     create index(:performers, [:track_id])
+
+    create table(:track_performers) do
+      add :track_id, references(:tracks)
+      add :performer_id, references(:performers)
+      add :position, :integer, null: false
+
+      timestamps(type: :utc_datetime)
+    end
+
+    create unique_index(:track_performers, [:track_id, :performer_id])
   end
 end

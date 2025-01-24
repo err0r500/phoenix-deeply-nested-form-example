@@ -19,7 +19,18 @@ defmodule DemoWeb.AlbumLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:name]} type="text" label="Album Name" />
+        <.input field={@form[:name]} id="album_name" type="text" label="Album Name" phx-hook="Flush" />
+
+        <.button phx-click="flush_name"
+        type="button"
+        phx-target={@myself}
+        >flush name</.button>
+
+        <.button
+        phx-click={JS.dispatch("flush", to: "#album_name")}
+        type="button"
+        phx-target={@myself}
+        >flush name working</.button>
 
         <.tracks_section tracks={@form[:tracks]} />
 
@@ -129,6 +140,14 @@ defmodule DemoWeb.AlbumLive.FormComponent do
   def handle_event("validate", %{"album" => album_params}, socket) do
     changeset = Catalog.change_album(socket.assigns.album, album_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
+  end
+
+  @impl true
+  def handle_event("flush_name", _value, socket) do
+    IO.puts("handling flush event")
+    JS.dispatch("flush", to: "#album_name")
+
+    {:noreply, socket}
   end
 
   def handle_event("save", %{"album" => album_params}, socket) do
