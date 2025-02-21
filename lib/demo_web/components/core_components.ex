@@ -17,7 +17,8 @@ defmodule DemoWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import DemoWeb.Gettext
+  use Gettext, backend: DemoWeb.Gettext
+
 
   @doc """
   Renders a modal.

@@ -26,7 +26,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
           flush name
         </.button>
 
-        <.tracks_section tracks={@form[:tracks]} />
+        <.tracks tracks={@form[:tracks]} />
 
         <:actions>
           <.button phx-disable-with="Saving...">Save Album</.button>
@@ -38,9 +38,10 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
   attr :tracks, :list, required: true
 
-  def tracks_section(assigns) do
+  def tracks(assigns) do
     ~H"""
     <.label>Track list</.label>
+    <.error :for={msg <- get_assoc_errors(@tracks)}>{msg}</.error>
 
     <.inputs_for :let={track} field={@tracks}>
       <input type="hidden" name="album[tracks_sort][]" value={track.index} />
@@ -50,7 +51,6 @@ defmodule DemoWeb.AlbumLive.FormComponent do
         <label>
           Track <%= track.index %>
           <button
-            id={"delete_track_#{track.index}"}
             type="button"
             name="album[tracks_drop][]"
             value={track.index}
@@ -63,12 +63,12 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
         <.input field={track[:name]} type="text" label="Track Name" />
 
-        <.performers_section performers={track[:track_performers]} track_index={track.index} />
+        <.performers performers={track[:track_performers]} track_index={track.index} />
       </div>
     </.inputs_for>
 
     <div class="flex justify-center">
-      <.button name="album[tracks_sort][]" value="new" phx-click={JS.dispatch("change")}>
+      <.button id="add-track" type="button" name="album[tracks_sort][]" value="new" phx-click={JS.dispatch("change")}>
         Add Track
       </.button>
     </div>
@@ -78,7 +78,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
   attr :performers, :list, required: true
   attr :track_index, :integer, required: true
 
-  def performers_section(assigns) do
+  def performers(assigns) do
     ~H"""
     <.label>Performers</.label>
 
@@ -111,6 +111,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
     <div class="flex justify-center ">
       <.button
+        type="button"
         name={"album[tracks][#{@track_index}][performers_sort][]"}
         value="new"
         phx-click={JS.dispatch("change")}
@@ -126,7 +127,6 @@ defmodule DemoWeb.AlbumLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_new(:flush_name, fn -> false end)
      |> assign_new(:form, fn ->
        to_form(Catalog.change_album(album))
      end)}
@@ -134,8 +134,8 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"album" => album_params, "flush_name" => _}, socket) do
-    IO.inspect(album_params, label: "flushName validate")
-    changeset = Catalog.change_album(socket.assigns.album, %{album_params | "name" => ""})
+    album_params = %{album_params | "name" => ""}
+    changeset = Catalog.change_album(socket.assigns.album, album_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -181,4 +181,8 @@ defmodule DemoWeb.AlbumLive.FormComponent do
   end
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
+
+  def get_assoc_errors(field) do
+    Enum.map(field.errors, &DemoWeb.CoreComponents.translate_error(&1))
+  end
 end
