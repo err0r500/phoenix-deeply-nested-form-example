@@ -7,9 +7,10 @@ import Config
 # Run `mix help test` for more information.
 config :demo, Demo.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "dbpassword",
   hostname: "localhost",
   database: "demo_test#{System.get_env("MIX_TEST_PARTITION")}",
+  port: 5433,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
@@ -35,3 +36,5 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+config :phoenix_test, :endpoint, DemoWeb.Endpoint

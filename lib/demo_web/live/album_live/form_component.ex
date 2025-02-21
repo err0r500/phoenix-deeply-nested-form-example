@@ -56,13 +56,14 @@ defmodule DemoWeb.AlbumLive.FormComponent do
         <label>
           Track <%= track.index %>
           <button
+            id={"delete_track_#{track.index}"}
             type="button"
             name="album[tracks_drop][]"
             value={track.index}
             phx-click={JS.dispatch("change")}
             class="float-right"
           >
-            <.icon name="hero-trash" class="w-6 h-6" />
+            delete track
           </button>
         </label>
 
@@ -74,7 +75,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
     <div class="flex justify-center">
       <.button name="album[tracks_sort][]" value="new" phx-click={JS.dispatch("change")}>
-        Add track
+        Add Track
       </.button>
     </div>
     """
@@ -144,9 +145,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
   @impl true
   def handle_event("flush_name", _value, socket) do
-    IO.puts("handling flush event")
     JS.dispatch("flush", to: "#album_name")
-
     {:noreply, socket}
   end
 
@@ -165,8 +164,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-
-        Logger.error("save album, changeset #{inspect(changeset)}")
+        Logger.error("edit album, changeset #{inspect(changeset)}")
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end
@@ -182,6 +180,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
+        Logger.error("create album, changeset #{inspect(changeset)}")
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end

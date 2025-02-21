@@ -17,7 +17,8 @@ defmodule Demo.Catalog.Album do
     |> cast_assoc(:tracks,
       with: &Demo.Catalog.Track.changeset/2,
       sort_param: :tracks_sort,
-      drop_param: :tracks_drop
+      drop_param: :tracks_drop,
+      required: true
     )
     |> validate_required([:name], message: "Album name is required")
   end
