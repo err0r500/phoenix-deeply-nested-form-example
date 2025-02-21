@@ -1,5 +1,6 @@
 defmodule DemoWeb.AlbumLive.FormComponent do
   use DemoWeb, :live_component
+  require Logger
 
   alias Demo.Catalog
 
@@ -21,16 +22,15 @@ defmodule DemoWeb.AlbumLive.FormComponent do
       >
         <.input field={@form[:name]} id="album_name" type="text" label="Album Name" phx-hook="Flush" />
 
-        <.button phx-click="flush_name"
-        type="button"
-        phx-target={@myself}
-        >flush name</.button>
+        <.button phx-click="flush_name" type="button" phx-target={@myself}>flush name</.button>
 
         <.button
-        phx-click={JS.dispatch("flush", to: "#album_name")}
-        type="button"
-        phx-target={@myself}
-        >flush name working</.button>
+          phx-click={JS.dispatch("flush", to: "#album_name")}
+          type="button"
+          phx-target={@myself}
+        >
+          flush name working
+        </.button>
 
         <.tracks_section tracks={@form[:tracks]} />
 
@@ -68,7 +68,7 @@ defmodule DemoWeb.AlbumLive.FormComponent do
 
         <.input field={track[:name]} type="text" label="Track Name" />
 
-        <.performers_section performers={track[:performers]} track_index={track.index} />
+        <.performers_section performers={track[:track_performers]} track_index={track.index} />
       </div>
     </.inputs_for>
 
@@ -165,6 +165,8 @@ defmodule DemoWeb.AlbumLive.FormComponent do
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
+
+        Logger.error("save album, changeset #{inspect(changeset)}")
         {:noreply, assign(socket, form: to_form(changeset))}
     end
   end

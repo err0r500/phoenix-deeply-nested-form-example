@@ -54,7 +54,8 @@ defmodule DemoWeb.TrackLive.FormComponent do
                 value={performer_ref[:performer_id].value}
               />
               <label>
-                <%= Map.get(@track_performers_details, performer_ref[:performer_id].value).name %>
+                <% performer = @track_performers_details["#{performer_ref[:performer_id].value}"] %>
+                <%= performer["name"] %>
               </label>
             </div>
           </div>
@@ -82,6 +83,7 @@ defmodule DemoWeb.TrackLive.FormComponent do
             id="add_performer"
             phx-click={JS.push("add_performer")}
             phx-target={@myself}
+            disabled={@to_add_performer_id == ""}
           >
             Create
           </.button>
@@ -111,28 +113,25 @@ defmodule DemoWeb.TrackLive.FormComponent do
      |> assign(
        :track_performers_details,
        Enum.reduce(track.track_performers, %{}, fn track_performer, acc ->
-         Map.put(acc, track_performer.performer_id, %{name: track_performer.performer.name})
+         Map.put(acc, "#{track_performer.performer_id}", %{
+           "name" => track_performer.performer.name,
+           "id" => track_performer.performer.id
+         })
        end)
      )
      |> assign(add_performer: false)
      |> assign(to_add_performer_id: "")
-     |> assign_found_performers()
      |> assign_new(:form, fn ->
        to_form(Catalog.change_track(track))
      end)}
   end
 
   @impl true
-  def handle_event("validate", %{"to_add_performer_id" => performer_id}, socket)
-      when performer_id != "" do
-    {:noreply,
-     socket
-     |> assign(to_add_performer_id: performer_id)}
-  end
-
-  @impl true
   def handle_event("validate", %{"add_performer" => _, "track" => track_params}, socket) do
-    if socket.assigns.to_add_performer_id do
+    if socket.assigns.to_add_performer_id == "" do
+      {:noreply, socket}
+    else
+      # updating the form
       track_params =
         Map.update!(track_params, "track_performers", fn track_performers ->
           Map.put(track_performers, "#{map_size(track_performers)}", %{
@@ -144,18 +143,42 @@ defmodule DemoWeb.TrackLive.FormComponent do
         socket.assigns.track
         |> Catalog.change_track(track_params)
 
+      # adding performer's details so they can be displayed
+      track_performers_details =
+        if not Map.has_key?(
+             socket.assigns.track_performers_details,
+             socket.assigns.to_add_performer_id
+           ) do
+          performer = Catalog.get_performer!(socket.assigns.to_add_performer_id)
+
+          Map.put(socket.assigns.track_performers_details, "#{performer.id}", %{
+            "name" => performer.name,
+            "id" => performer.id
+          })
+        else
+          socket.assigns.track_performers_details
+        end
+
       {:noreply,
        socket
        |> assign(add_performer: false)
+       |> assign(track_performers_details: track_performers_details)
        |> assign(form: to_form(changeset, action: :validate))}
-    else
-      {:noreply, socket}
     end
   end
 
   @impl true
+  def handle_event("validate", %{"to_add_performer_id" => performer_id}, socket)
+      when performer_id != "" do
+    IO.inspect(performer_id, label: "adding performer_id")
+
+    {:noreply,
+     socket
+     |> assign(to_add_performer_id: performer_id)}
+  end
+
+  @impl true
   def handle_event("validate", %{"track" => track_params} = _params, socket) do
-    IO.inspect(socket.assigns.track_performers_details, label: "track_performers_details")
     changeset = Catalog.change_track(socket.assigns.track, track_params)
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
@@ -197,13 +220,5 @@ defmodule DemoWeb.TrackLive.FormComponent do
         IO.inspect(changeset, label: "edit failed")
         {:noreply, assign(socket, form: to_form(changeset))}
     end
-  end
-
-  defp assign_found_performers(socket) do
-    performers =
-      Demo.Catalog.list_performers()
-      |> Enum.map(&{&1.name, &1.id})
-
-    assign(socket, :found_performers, performers)
   end
 end

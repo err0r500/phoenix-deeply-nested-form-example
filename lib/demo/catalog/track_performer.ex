@@ -13,7 +13,8 @@ defmodule Demo.Catalog.TrackPerformer do
 
   def changeset(track_performer, attrs, position) do
     track_performer
-    |> cast(attrs, [:track_id, :performer_id])
+    |> cast(attrs, [:track_id, :performer_id, :position])
+    |> validate_required([:track_id, :performer_id])
     |> change(position: position)
     |> unique_constraint([:track, :performer])
   end

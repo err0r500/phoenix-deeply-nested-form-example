@@ -227,7 +227,7 @@ defmodule Demo.Catalog do
       ** (Ecto.NoResultsError)
 
   """
-  def get_album!(id), do: Repo.get!(Album, id) |> Repo.preload(tracks: [:performers])
+  def get_album!(id), do: Repo.get!(Album, id) |> Repo.preload(tracks: [:track_performers])
 
   @doc """
   Creates a album.

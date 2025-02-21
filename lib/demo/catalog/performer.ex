@@ -5,8 +5,6 @@ defmodule Demo.Catalog.Performer do
   schema "performers" do
     field :name, :string
 
-    many_to_many :track, Demo.Catalog.Track, join_through: "track_performers"
-
     timestamps(type: :utc_datetime)
   end
 
@@ -14,6 +12,6 @@ defmodule Demo.Catalog.Performer do
   def changeset(performer, attrs) do
     performer
     |> cast(attrs, [:name])
-    |> validate_required([:name], message: "Performer name is required")
+    |> validate_required([:name])
   end
 end

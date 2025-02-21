@@ -19,22 +19,21 @@ defmodule DemoWeb.Router do
 
     get "/", PageController, :home
 
-     live "/performers", PerformerLive.Index, :index
+    live "/performers", PerformerLive.Index, :index
     live "/performers/new", PerformerLive.Index, :new
     live "/performers/:id/edit", PerformerLive.Index, :edit
 
     live "/performers/:id", PerformerLive.Show, :show
     live "/performers/:id/show/edit", PerformerLive.Show, :edit
 
-
-     live "/tracks", TrackLive.Index, :index
+    live "/tracks", TrackLive.Index, :index
     live "/tracks/new", TrackLive.Index, :new
     live "/tracks/:id/edit", TrackLive.Index, :edit
 
     live "/tracks/:id", TrackLive.Show, :show
     live "/tracks/:id/show/edit", TrackLive.Show, :edit
 
-   live "/albums", AlbumLive.Index, :index
+    live "/albums", AlbumLive.Index, :index
     live "/albums/new", AlbumLive.Index, :new
     live "/albums/:id/edit", AlbumLive.Index, :edit
 

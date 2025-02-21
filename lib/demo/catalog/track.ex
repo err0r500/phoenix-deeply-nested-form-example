@@ -19,11 +19,11 @@ defmodule Demo.Catalog.Track do
   def changeset(track, attrs) do
     track
     |> cast(attrs, [:name])
+    |> validate_required([:name])
     |> cast_assoc(:track_performers,
       with: &Demo.Catalog.TrackPerformer.changeset/3,
       sort_param: :performers_sort,
       drop_param: :performers_drop
     )
-    |> validate_required([:name], message: "Track name is required")
   end
 end
